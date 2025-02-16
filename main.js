@@ -135,9 +135,10 @@ console.log(row, column)
 try{
     const response = await sendRequest("game_step", "POST",{
     game_id,
-    row: row,
-    column: column,
+    row,
+    column,
 });
+updateArea(response.table)
 if(response.error){
 alert(response.message)
 } else{
@@ -166,18 +167,49 @@ alert(response.message)
 }}
     
 
+function updateArea (table){
+    let fields = document.querySelectorAll(".field")
+    let a = 0
+
+for (let i = 0; i < table.length; i++){
+    let row = table[i];
+    for (let j = 0; j< row.length; j++){
+        let cell = row [j];
+        let value = fields[a];
+        if (cell === ""){
+
+        } else if ((cell ===0)){
+            value.classList.remove("active")
+        }else if ((cell === "BOMB")){
+            value.classList.remove("active")
+            value.classList.add("bomb")
+        }else if (cell >0){
+            value.classList.remove("active")
+            value.innerHTML = cell
+        }
+        a++
+    }
+}
+}
+
+
 // Флажок
 function setFlag(event){
     event.preventDefault()
     let target = event.target
+
+       // Проверяем, пустая ли клетка (не содержит число и не была открыта)
+       if (!target.classList.contains("active")) {
+        return; // Если клетка уже открыта, флажок не ставим
+    }
     target.classList.toggle("flag")
 }
-
 
 
 // 80 клеток через жс
 function resetField (){
     const gameField = document.querySelector(".gameField")
+    gameField.innerHTML = ""
     for(let i=0;i<80;i++){
         const field = document.createElement("div")
         field.classList.add("field")
@@ -185,10 +217,6 @@ function resetField (){
     }
 }
 resetField()
-
-
-
-
 
 
 // Функция для отправки запросов на сервер
